@@ -32,7 +32,7 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["https://tiny-url-frontend.vercel.app", "https://tiny-url-backend.vercel.app"];
+const allowedOrigins = ["https://tiny-url-frontend-5wwpsqqfj-hammads-projects-aaee87a8.vercel.app", "https://tiny-url-backend-production-0b54.up.railway.app"];
 
 app.use(
   cors({
