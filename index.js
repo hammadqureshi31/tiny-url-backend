@@ -32,7 +32,7 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+const allowedOrigins = ["https://tiny-url-frontend.vercel.app/", "http://localhost:3000"];
 
 app.use(
   cors({
