@@ -157,14 +157,14 @@ app.get("/user/me", (req, res) => {
 app.use("/url", urlRoutes);
 app.use("/user", userRoutes);
 
-mongoose
-  .connect(mongodb_url)
-  .then(() => {
-    app.listen(port, () => {
-      console.log("Connected to MongoDB");
-      console.log(`App is listening on port ${port}`);
-    });
-  })
-  .catch((error) => {
-    console.log("Error connecting to MongoDB: ", error);
+mongoose.connect("mongodb+srv://hammadqureshi:Hammad_qureshi-190@cluster0.cjcec1p.mongodb.net/tinyURL?retryWrites=true&w=majority&appName=Cluster0", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  app.listen(port, () => {
+    console.log("Connected to MongoDB");
+    console.log(`App is listening on port ${port}`);
   });
+}).catch(err => {
+  console.error('Error connecting to MongoDB:', err);
+});
