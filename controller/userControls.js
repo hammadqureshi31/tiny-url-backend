@@ -1,6 +1,7 @@
 import { User } from "../model/userModel.js";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // Define options for cookies
 const accessTokenMaxAge = 24 * 60 * 60 * 1000; // 1 day in milliseconds
@@ -67,6 +68,20 @@ export async function handleCreateNewUser(req, res) {
   }
 
   return res.status(200).json(createdUser);
+}
+
+export async function handleCheckIsUserLoggedIn(req, res) {
+  const accessToken = req.cookies?.accessToken;
+
+  if (!accessToken) return res.status(404).send("No Access Token Found...");
+
+  try {
+    const decodeAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
+    console.log("decoded", decodeAccessToken)
+    res.json(decodeAccessToken)
+  } catch (error) {
+    console.log("decoded error", error)
+  }
 }
 
 export async function handleLoginUser(req, res) {
@@ -154,7 +169,7 @@ export async function handleForgotPassword(req, res) {
       service: "gmail",
       auth: {
         user: "muhammadhammadq882@gmail.com",
-        pass: "amjx gunw ntrg nour",
+        pass: process.env.EMAIL_PASS_FOR_NODEMAILER,
       },
     });
 
@@ -162,7 +177,7 @@ export async function handleForgotPassword(req, res) {
       from: "muhammadhammadq882@gmail.com",
       to: user.email,
       subject: "Reset your password ",
-      text: `https://tiny-url-frontend.vercel.app/resetPassword/${user._id}`,
+      text: `http://localhost:5173/resetPassword/${user._id}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -172,6 +187,7 @@ export async function handleForgotPassword(req, res) {
         console.log("Email sent: " + info.response);
       }
     });
+    res.status(200).send("Email sended..")
   } catch (error) {
     res.status(401).send("Error in send forgot password email");
   }
@@ -212,7 +228,6 @@ export async function handleResetPassword(req, res) {
   }
 }
 
-
 // export const handleLoginWithGoogle = async (req, res, next) => {
 //   passport.authenticate('google', async (err, user, info) => {
 //     if (err) {
@@ -248,5 +263,3 @@ export async function handleResetPassword(req, res) {
 //     });
 //   })(req, res, next);
 // };
-
-

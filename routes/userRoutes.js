@@ -1,10 +1,12 @@
 import express from "express";
-import { handleCreateNewUser, handleLoginUser, handleLogoutUser, handleForgotPassword, handleResetPassword } from "../controller/userControls.js";
+import { handleCreateNewUser, handleLoginUser, handleLogoutUser, handleForgotPassword, handleResetPassword, handleCheckIsUserLoggedIn } from "../controller/userControls.js";
 import { verifyJWT } from "../middlewear/auth.logout.js";
 
 const router = express.Router();
 
 router.post('/register', handleCreateNewUser);
+
+router.get('/me', handleCheckIsUserLoggedIn)
 
 router.post('/login', handleLoginUser);
 

@@ -1,6 +1,5 @@
 // Middleware
 import jwt from "jsonwebtoken";
-import { accessTokenSecret, refreshTokenSecret } from "../config.js";
 import { User } from "../model/userModel.js";
 import {
   accessTokenOptions,
@@ -23,7 +22,7 @@ export const verifyJWT = async (req, res, next) => {
           .json({ msg: "Unauthorized Request. Please login." });
 
       try {
-        const decodedRefreshToken = jwt.verify(refresh, refreshTokenSecret);
+        const decodedRefreshToken = jwt.verify(refresh, process.env.REFRESH_TOKEN_SECRET);
         const user = await User.findById(decodedRefreshToken._id);
 
         if (!user)
@@ -51,7 +50,7 @@ export const verifyJWT = async (req, res, next) => {
       }
     }
 
-    const decodedAccessToken = jwt.verify(token, accessTokenSecret);
+    const decodedAccessToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     const user = await User.findById(decodedAccessToken._id).select(
       "-password -refreshToken"

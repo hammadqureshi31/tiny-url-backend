@@ -1,10 +1,4 @@
 import express from "express";
-import {
-  port,
-  mongodb_url,
-  googleClientId,
-  googleClientSecret,
-} from "./config.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -32,24 +26,26 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["https://tiny-url-frontend-5wwpsqqfj-hammads-projects-aaee87a8.vercel.app", "https://tiny-url-backend-production-0b54.up.railway.app"];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
         const msg =
           "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
       }
-      return callback(null, true);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -58,6 +54,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Custom TinyURL Backend...");
 });
+
 
 // Configure session middleware
 app.use(
@@ -76,8 +73,8 @@ app.use(passport.session());
 passport.use(
   new GoogleStrategy(
     {
-      clientID: googleClientId,
-      clientSecret: googleClientSecret,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
       scope: ["profile", "email"],
     },
@@ -124,7 +121,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "https://tiny-url-frontend.vercel.app/login",
+    failureRedirect: "https://localhost:5173/login",
   }),
   async (req, res, next) => {
     try {
@@ -137,7 +134,7 @@ app.get(
       res.cookie("accessToken", accessToken, accessTokenOptions);
 
       // Redirect the user after setting cookies
-      res.redirect("https://tiny-url-frontend.vercel.app/");
+      res.redirect("https://localhost:5173/");
     } catch (error) {
       console.error("Error generating tokens:", error);
       res.status(500).send("Failed to generate tokens.");
@@ -145,25 +142,16 @@ app.get(
   }
 );
 
-app.get("/user/me", (req, res) => {
-  if (req.isAuthenticated()) {
-    const user = req.user;
-    res.json(user);
-  } else {
-    res.status(401).json({ message: "Not authenticated" });
-  }
-});
-
 app.use("/url", urlRoutes);
 app.use("/user", userRoutes);
 
-mongoose.connect("mongodb+srv://hammadqureshi:Hammad_qureshi-190@cluster0.cjcec1p.mongodb.net/tinyURL?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
-  app.listen(port, () => {
+  app.listen(process.env.PORT, () => {
     console.log("Connected to MongoDB");
-    console.log(`App is listening on port ${port}`);
+    console.log(`App is listening on port ${process.env.PORT}`);
   });
 }).catch(err => {
   console.error('Error connecting to MongoDB:', err);
