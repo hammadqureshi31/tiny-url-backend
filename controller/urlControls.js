@@ -17,9 +17,8 @@ export async function handleFindAllURLs(req, res) {
 
 export async function handleCreateNewShortID(req, res) {
   const { url } = req.body;
-  // console.log("url received on backend testing ", url);
-  // console.log("user received on backend testing ", req.user._id);
-  if (!url) return res.status(404).send("URL required");
+
+  if (!url) return res.status(400).send("URL required");
 
   try {
     const shortId = shortid.generate();
@@ -36,6 +35,7 @@ export async function handleCreateNewShortID(req, res) {
     const result = await URL.create(newURL);
     return res.status(200).json({ id: shortId, qrcode: qrCodeURL });
   } catch (error) {
+    console.error("Error creating URL:", error);
     return res.status(500).send("Error creating URL: " + error.message);
   }
 }
