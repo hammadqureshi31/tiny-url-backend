@@ -10,7 +10,7 @@ const refreshTokenMaxAge = 240 * 60 * 60 * 1000; // 10 days in milliseconds
 export const accessTokenOptions = {
   maxAge: accessTokenMaxAge,
   httpOnly: true,  
-  secure: true,    
+  secure: false,    
   sameSite: 'strict', 
   path: '/',       
 };
@@ -18,7 +18,7 @@ export const accessTokenOptions = {
 export const refreshTokenOptions = {
   maxAge: refreshTokenMaxAge,
   httpOnly: true,
-  secure: true,    
+  secure: false,    
   sameSite: 'strict', 
   path: '/',       
 };
