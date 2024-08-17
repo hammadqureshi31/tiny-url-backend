@@ -26,7 +26,7 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["https://tiny-url-frontend.vercel.app", "https://tiny-url-backend.vercel.app"];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
 
 app.use(
   cors({
@@ -121,7 +121,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "https://tiny-url-frontend.vercel.app/login",
+    failureRedirect: "http://localhost:5173/login",
   }),
   async (req, res, next) => {
     try {
@@ -134,7 +134,7 @@ app.get(
       res.cookie("accessToken", accessToken, accessTokenOptions);
 
       // Redirect the user after setting cookies
-      res.redirect("https://tiny-url-frontend.vercel.app/");
+      res.redirect("http://localhost:5173/");
     } catch (error) {
       console.error("Error generating tokens:", error);
       res.status(500).send("Failed to generate tokens.");
@@ -145,10 +145,7 @@ app.get(
 app.use("/url", urlRoutes);
 app.use("/user", userRoutes);
 
-mongoose.connect(process.env.MONGODB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
+mongoose.connect(process.env.MONGODB_URL).then(() => {
   app.listen(process.env.PORT, () => {
     console.log("Connected to MongoDB");
     console.log(`App is listening on port ${process.env.PORT}`);
@@ -156,3 +153,4 @@ mongoose.connect(process.env.MONGODB_URL, {
 }).catch(err => {
   console.error('Error connecting to MongoDB:', err);
 });
+

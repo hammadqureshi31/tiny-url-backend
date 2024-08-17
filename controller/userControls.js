@@ -83,7 +83,7 @@ export async function handleCheckIsUserLoggedIn(req, res) {
 
   try {
     const decodeAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
-    console.log("decoded", decodeAccessToken)
+    // console.log("decoded", decodeAccessToken)
     res.json(decodeAccessToken)
   } catch (error) {
     console.log("decoded error", error)
@@ -108,7 +108,7 @@ export async function handleLoginUser(req, res) {
 
   const matchPass = await userExists.isPasswordCorrect(password);
 
-  console.log(matchPass);
+  // console.log(matchPass);
 
   if (!matchPass) {
     return res.status(401).send("Invalid credentials.");
@@ -183,7 +183,7 @@ export async function handleForgotPassword(req, res) {
       from: "muhammadhammadq882@gmail.com",
       to: user.email,
       subject: "Reset your password ",
-      text: `https://tiny-url-frontend.vercel.app/${user._id}`,
+      text: `http://localhost:5173/resetPassword/${user._id}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {

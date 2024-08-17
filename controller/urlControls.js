@@ -18,6 +18,8 @@ export async function handleFindAllURLs(req, res) {
 export async function handleCreateNewShortID(req, res) {
   const { url } = req.body;
 
+  // console.log("user from middlewear", req.user)
+
   if (!url) return res.status(400).send("URL required");
 
   try {
@@ -29,7 +31,6 @@ export async function handleCreateNewShortID(req, res) {
       redirectURL: url,
       qrcode: qrCodeURL,
       visitHistory: [],
-      // createdBy: "5a9427648b0beebeb6957db2"
       createdBy: req.user._id
     };
 
