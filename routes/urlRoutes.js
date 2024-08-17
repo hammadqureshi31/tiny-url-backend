@@ -7,7 +7,8 @@ const router = express.Router();
 router.get('/', handleFindAllURLs)
 
 //secured route
-router.post('/', verifyJWT, handleCreateNewShortID);
+// router.post('/', verifyJWT, handleCreateNewShortID);
+router.post('/', handleCreateNewShortID);
 
 router.get('/:shortID', handleFindByShortId)
 
