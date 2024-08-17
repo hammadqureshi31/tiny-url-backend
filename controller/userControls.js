@@ -183,7 +183,7 @@ export async function handleForgotPassword(req, res) {
       from: "muhammadhammadq882@gmail.com",
       to: user.email,
       subject: "Reset your password ",
-      text: `http://localhost:5173/resetPassword/${user._id}`,
+      text: `https://tiny-url-frontend.vercel.app/resetPassword/${user._id}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {

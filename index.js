@@ -26,7 +26,7 @@ const app = express();
 
 app.use(helmet());
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+const allowedOrigins = ["https://tiny-url-frontend.vercel.app", "https://tiny-url-backend.vercel.app"];
 
 app.use(
   cors({
@@ -121,7 +121,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: "http://localhost:5173/login",
+    failureRedirect: "https://tiny-url-frontend.vercel.app/login",
   }),
   async (req, res, next) => {
     try {
@@ -134,7 +134,7 @@ app.get(
       res.cookie("accessToken", accessToken, accessTokenOptions);
 
       // Redirect the user after setting cookies
-      res.redirect("http://localhost:5173/");
+      res.redirect("https://tiny-url-frontend.vercel.app");
     } catch (error) {
       console.error("Error generating tokens:", error);
       res.status(500).send("Failed to generate tokens.");
