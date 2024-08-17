@@ -1,4 +1,3 @@
-// Middleware
 import jwt from "jsonwebtoken";
 import { User } from "../model/userModel.js";
 import {
@@ -9,13 +8,15 @@ import {
 
 export const verifyJWT = async (req, res, next) => {
   try {
-    const token = req.cookies?.accessToken 
+    console.log("Request Headers:", req.headers);
+    console.log("Cookies:", req.cookies);
     
-    console.log("Access token auth:", token)
+    const token = req.cookies?.accessToken;
+    console.log("Access token auth:", token);
 
     if (!token) {
       const refresh = req.cookies?.refreshToken;
-      console.log("Refresh token auth:", refresh)
+      console.log("Refresh token auth:", refresh);
       if (!refresh) {
         return res.status(401).json({ msg: "Unauthorized Request. Please login." });
       }
