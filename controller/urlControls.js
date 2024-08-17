@@ -29,7 +29,8 @@ export async function handleCreateNewShortID(req, res) {
       redirectURL: url,
       qrcode: qrCodeURL,
       visitHistory: [],
-      createdBy: req.user._id
+      createdBy: "5a9427648b0beebeb6957db2"
+      // createdBy: req.user._id
     };
 
     const result = await URL.create(newURL);
