@@ -58,10 +58,10 @@ app.get("/", (req, res) => {
 // Configure session middleware
 app.use(
   session({
-    secret: "your_secret_key", // Replace with your own secret key
+    secret: "tiny-url-backend-session", // Replace with your own secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set 'secure: true' if using HTTPS
+    cookie: { secure: true }, // Set 'secure: true' if using HTTPS
   })
 );
 
