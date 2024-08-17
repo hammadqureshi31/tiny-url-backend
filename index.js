@@ -26,8 +26,8 @@ const app = express();
 
 app.use(helmet());
 
+// CORS configuration
 const allowedOrigins = ["https://tiny-url-frontend.vercel.app", "https://tiny-url-backend.vercel.app"];
-
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -35,8 +35,7 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
+        const msg = "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
       }
     },

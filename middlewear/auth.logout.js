@@ -1,9 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../model/userModel.js";
 import {
-  accessTokenOptions,
   generateAccessAndRefreshToken,
-  refreshTokenOptions,
 } from "../controller/userControls.js";
 
 export const verifyJWT = async (req, res, next) => {
@@ -33,9 +31,16 @@ export const verifyJWT = async (req, res, next) => {
 
         const validUser = await User.findById(user._id).select("-password -refreshToken");
 
-        res
-          .cookie("refreshToken", refreshToken, refreshTokenOptions)
-          .cookie("accessToken", accessToken, accessTokenOptions);
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: true, // Ensure this is true if using HTTPS
+          sameSite: 'None', // Allows cross-site cookies
+        });
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: true, // Ensure this is true if using HTTPS
+          sameSite: 'None', // Allows cross-site cookies
+        });
 
         req.user = validUser;
         next();

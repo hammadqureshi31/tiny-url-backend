@@ -123,11 +123,17 @@ export async function handleLoginUser(req, res) {
       "-password -refreshToken"
     );
 
-    res
-      .status(200)
-      .cookie("refreshToken", refreshToken, refreshTokenOptions)
-      .cookie("accessToken", accessToken, accessTokenOptions)
-      .json(loggedInUser);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: true, // Ensure this is true if using HTTPS
+      sameSite: 'None', // Allows cross-site cookies
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true, // Ensure this is true if using HTTPS
+      sameSite: 'None', // Allows cross-site cookies
+    });
+    res.status(200).json(loggedInUser);
   } catch (error) {
     res.status(500).send("Login failed. Please try again.");
   }
