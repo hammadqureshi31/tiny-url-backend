@@ -11,10 +11,11 @@ export const verifyJWT = async (req, res, next) => {
   try {
     const token = req.cookies?.accessToken 
     
-    // console.log("Access token auth:", token)
+    console.log("Access token auth:", token)
 
     if (!token) {
       const refresh = req.cookies?.refreshToken;
+      console.log("Refresh token auth:", refresh)
       if (!refresh) {
         return res.status(401).json({ msg: "Unauthorized Request. Please login." });
       }
