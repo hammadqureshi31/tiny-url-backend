@@ -45,7 +45,6 @@ app.use(
   })
 );
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -54,14 +53,19 @@ app.get("/", (req, res) => {
   res.send("Custom TinyURL Backend...");
 });
 
-
 // Configure session middleware
+app.set('trust proxy', 1); // Trust first proxy if behind one
 app.use(
   session({
     secret: "tiny-url-backend-session", // Replace with your own secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }, // Set 'secure: true' if using HTTPS
+    cookie: {
+      secure: true, // Ensure HTTPS
+      sameSite: 'none', // For cross-site cookies
+      httpOnly: true, // Helps prevent cross-site scripting attacks
+    },
+    proxy: true, // Required for cookies to work behind proxies like Vercel
   })
 );
 
@@ -74,7 +78,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "https://tiny-url-backend.vercel.app/auth/google/callback",
       scope: ["profile", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -152,4 +156,3 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
 }).catch(err => {
   console.error('Error connecting to MongoDB:', err);
 });
-
