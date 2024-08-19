@@ -185,6 +185,8 @@ export async function handleForgotPassword(req, res) {
         pass: process.env.EMAIL_PASS_FOR_NODEMAILER,
       },
     });
+    console.log("pass", process.env.EMAIL_PASS_FOR_NODEMAILER)
+    console.log("forgot user", user.email)
 
     var mailOptions = {
       from: "muhammadhammadq882@gmail.com",
@@ -240,39 +242,3 @@ export async function handleResetPassword(req, res) {
     res.status(500).send("Internal Server Error");
   }
 }
-
-// export const handleLoginWithGoogle = async (req, res, next) => {
-//   passport.authenticate('google', async (err, user, info) => {
-//     if (err) {
-//       console.error('Error during Google authentication:', err);
-//       return next(err);
-//     }
-//     if (!user) {
-//       return res.redirect('http://localhost:5173/login');
-//     }
-
-//     req.logIn(user, async (err) => {
-//       if (err) {
-//         console.error('Error logging in user:', err);
-//         return next(err);
-//       }
-
-//       try {
-//         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-
-//         const googleUser = await User.findById(user._id).select("-password - refreshToken")
-
-//         console.log("user from control", googleUser)
-
-//         res
-//           .status(200)
-//           .cookie('refreshToken', refreshToken, refreshTokenOptions)
-//           .cookie('accessToken', accessToken, accessTokenOptions)
-//           .redirect('http://localhost:5173/');
-//       } catch (error) {
-//         console.error('Error generating tokens:', error);
-//         res.status(500).send('Failed to generate tokens.');
-//       }
-//     });
-//   })(req, res, next);
-// };
