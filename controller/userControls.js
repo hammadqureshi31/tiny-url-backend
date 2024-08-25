@@ -228,7 +228,7 @@ export async function handleForgotPassword(req, res) {
         const from = MY_EMAIL;
         const subject = "🌻 This Is Sent By Reducer 🌻";
         const html = `
-          <p>Hey ${user.email},</p>
+          <p>Hey ${user.username},</p>
           <p>Click <a href="https://tiny-url-frontend.vercel.app/resetPassword/${user._id}">here</a> to reset your password.</p>
           <p>Thank you</p>
         `;
