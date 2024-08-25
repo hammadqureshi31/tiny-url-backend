@@ -2,6 +2,7 @@ import { User } from "../model/userModel.js";
 import nodemailer from "nodemailer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { google } from "googleapis"
 
 // Define options for cookies
 const accessTokenMaxAge = 24 * 60 * 60 * 1000; // 1 day in milliseconds
@@ -169,44 +170,77 @@ export async function handleLogoutUser(req, res) {
   }
 }
 
-// forgot password
+// forgot Password handler
 export async function handleForgotPassword(req, res) {
   const { email } = req.body;
 
-  if (!email) return res.status(401).send("Email is required");
+  if (!email) {
+    return res.status(400).send("Email is required");
+  }
 
   try {
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(404).send("Invalid Email Address.");
+    if (!user) {
+      return res.status(404).send("Invalid Email Address.");
+    }
 
-    var transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "muhammadhammadq882@gmail.com",
-        pass: process.env.EMAIL_PASS_FOR_NODEMAILER,
-      },
-    });
-    console.log("pass", process.env.EMAIL_PASS_FOR_NODEMAILER)
-    console.log("forgot user", user.email)
+    const CLIENT_ID = process.env.CLIENT_ID_FOR_MAIL;
+    const CLIENT_SECRET = process.env.CLIENT_SECRET_FOR_MAIL;
+    const REFRESH_TOKEN = process.env.REFRESH_TOKEN_FOR_MAIL;
+    const REDIRECT_URI = "https://developers.google.com/oauthplayground"; // Do not edit
+    const MY_EMAIL = "muhammadhammadq882@gmail.com";
+    const tosend = user.email; 
 
-    var mailOptions = {
-      from: "muhammadhammadq882@gmail.com",
-      to: user.email,
-      subject: "Reset your password ",
-      text: `https://tiny-url-frontend.vercel.app/resetPassword/${user._id}`,
+    const oAuth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URI
+    );
+
+    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+
+    const sendTestEmail = async () => {
+      const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+      const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          type: "OAuth2",
+          user: MY_EMAIL,
+          clientId: CLIENT_ID,
+          clientSecret: CLIENT_SECRET,
+          refreshToken: REFRESH_TOKEN,
+          accessToken: ACCESS_TOKEN,
+        },
+        tls: {
+          rejectUnauthorized: true,
+        },
+      });
+
+      // EMAIL OPTIONS
+      const from = MY_EMAIL;
+      const subject = "This is sent by Reducer";
+      const html = `
+        <p>Hey ${user.email},</p>
+        <p>Click <a href="https://tiny-url-frontend.vercel.app/resetPassword/${user._id}">here</a> to reset your password.</p>
+        <p>Thank you</p>
+      `;
+
+      return new Promise((resolve, reject) => {
+        transport.sendMail({ from, to: tosend, subject, html }, (err, info) => {
+          if (err) reject(err);
+          else resolve(info);
+        });
+      });
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
-    res.status(200).send("Email sended..")
+    // Call the function and handle the response
+    await sendTestEmail();
+    res.status(200).send("Password reset email sent successfully.");
+
   } catch (error) {
-    res.status(401).send("Error in send forgot password email");
+    console.error(error); // Log the error for debugging
+    res.status(500).send("Error in sending forgot password email");
   }
 }
 
