@@ -173,7 +173,7 @@ export async function handleLogoutUser(req, res) {
 export async function handleForgotPassword(req, res) {
   const { email } = req.body;
 
-  if (!email) return res.status(401).send("Email is required");
+  if (!email) return res.status(400).send("Email is required");
 
   try {
     const user = await User.findOne({ email });
@@ -189,7 +189,7 @@ export async function handleForgotPassword(req, res) {
         pass: process.env.EMAIL_PASS_FOR_NODEMAILER,
       },
     });
-    
+
     var mailOptions = {
       from: "muhammadhammadq882@gmail.com",
       to: user.email,
@@ -201,12 +201,13 @@ export async function handleForgotPassword(req, res) {
       let info = await transporter.sendMail(mailOptions);
       console.log("Email sent: " + info.response);
       res.status(200).send("Email sent.");
-    } catch (error) {
-      console.log(error);
+    } catch (mailError) {
+      console.error("Error sending email:", mailError);
       res.status(500).send("Failed to send email.");
     }
-    
+
   } catch (error) {
+    console.error("Error in forgot password handler:", error);
     res.status(500).send("Error in sending forgot password email");
   }
 }
