@@ -134,7 +134,7 @@ app.get(
         req.user._id
       );
 
-      console.lg("req user at tokens", req.user)
+      console.log("req user at tokens", req.user)
 
       // Set cookies
       res.cookie("refreshToken", refreshToken, refreshTokenOptions);
