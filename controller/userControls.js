@@ -181,15 +181,15 @@ export async function handleForgotPassword(req, res) {
     if (!user) return res.status(404).send("Invalid Email Address.");
 
     var transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // true for 465, false for other ports
       auth: {
         user: "muhammadhammadq882@gmail.com",
         pass: process.env.EMAIL_PASS_FOR_NODEMAILER,
       },
     });
-    console.log("pass", process.env.EMAIL_PASS_FOR_NODEMAILER)
-    console.log("forgot user", user.email)
-
+    
     var mailOptions = {
       from: "muhammadhammadq882@gmail.com",
       to: user.email,
@@ -197,16 +197,17 @@ export async function handleForgotPassword(req, res) {
       text: `https://tiny-url-frontend.vercel.app/resetPassword/${user._id}`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("Email sent: " + info.response);
-      }
-    });
-    res.status(200).send("Email sended..")
+    try {
+      let info = await transporter.sendMail(mailOptions);
+      console.log("Email sent: " + info.response);
+      res.status(200).send("Email sent.");
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("Failed to send email.");
+    }
+    
   } catch (error) {
-    res.status(401).send("Error in send forgot password email");
+    res.status(500).send("Error in sending forgot password email");
   }
 }
 
