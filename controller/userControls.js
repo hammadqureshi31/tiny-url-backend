@@ -80,11 +80,13 @@ export async function handleCreateNewUser(req, res) {
 export async function handleCheckIsUserLoggedIn(req, res) {
   const accessToken = req.cookies?.accessToken;
 
+  console.log("access at me ", accessToken)
+
   if (!accessToken) return res.status(404).send("No Access Token Found...");
 
   try {
     const decodeAccessToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
-    // console.log("decoded", decodeAccessToken)
+    console.log("decoded", decodeAccessToken)
     res.json(decodeAccessToken)
   } catch (error) {
     console.log("decoded error", error)
