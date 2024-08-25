@@ -136,11 +136,11 @@ app.get(
 
       console.log("req user at tokens", req.user)
 
+      res.json(req.user)
       // Set cookies
       res.cookie("refreshToken", refreshToken, refreshTokenOptions);
       res.cookie("accessToken", accessToken, accessTokenOptions);
 
-      // Redirect the user after setting cookies
       res.redirect("https://tiny-url-frontend.vercel.app");
     } catch (error) {
       console.error("Error generating tokens:", error);
