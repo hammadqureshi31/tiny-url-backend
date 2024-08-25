@@ -85,6 +85,8 @@ passport.use(
       try {
         let user = await User.findOne({ email: profile.emails[0].value });
 
+        console.log("user from google", user)
+
         if (!user) {
           user = new User({
             username: profile.displayName,
@@ -131,6 +133,8 @@ app.get(
       const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
         req.user._id
       );
+
+      console.lg("req user at tokens", req.user)
 
       // Set cookies
       res.cookie("refreshToken", refreshToken, refreshTokenOptions);
