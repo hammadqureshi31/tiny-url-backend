@@ -170,7 +170,7 @@ export async function handleLogoutUser(req, res) {
   }
 }
 
-// forgot Password handler
+// forgot password
 export async function handleForgotPassword(req, res) {
   const { email } = req.body;
 
@@ -190,7 +190,7 @@ export async function handleForgotPassword(req, res) {
     const REFRESH_TOKEN = process.env.REFRESH_TOKEN_FOR_MAIL;
     const REDIRECT_URI = "https://developers.google.com/oauthplayground"; // Do not edit
     const MY_EMAIL = "muhammadhammadq882@gmail.com";
-    const tosend = user.email; 
+    const tosend = user.email;
 
     const oAuth2Client = new google.auth.OAuth2(
       CLIENT_ID,
@@ -198,40 +198,50 @@ export async function handleForgotPassword(req, res) {
       REDIRECT_URI
     );
 
+    // Set the credentials with the refresh token
     oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
     const sendTestEmail = async () => {
-      const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
-      const transport = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          type: "OAuth2",
-          user: MY_EMAIL,
-          clientId: CLIENT_ID,
-          clientSecret: CLIENT_SECRET,
-          refreshToken: REFRESH_TOKEN,
-          accessToken: ACCESS_TOKEN,
-        },
-        tls: {
-          rejectUnauthorized: true,
-        },
-      });
+      try {
+        const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
+        
+        if (!ACCESS_TOKEN.token) {
+          throw new Error("Failed to retrieve access token");
+        }
 
-      // EMAIL OPTIONS
-      const from = MY_EMAIL;
-      const subject = "This is sent by Reducer";
-      const html = `
-        <p>Hey ${user.email},</p>
-        <p>Click <a href="https://tiny-url-frontend.vercel.app/resetPassword/${user._id}">here</a> to reset your password.</p>
-        <p>Thank you</p>
-      `;
-
-      return new Promise((resolve, reject) => {
-        transport.sendMail({ from, to: tosend, subject, html }, (err, info) => {
-          if (err) reject(err);
-          else resolve(info);
+        const transport = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            type: "OAuth2",
+            user: MY_EMAIL,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            refreshToken: REFRESH_TOKEN,
+            accessToken: ACCESS_TOKEN.token,
+          },
+          tls: {
+            rejectUnauthorized: true,
+          },
         });
-      });
+
+        // EMAIL OPTIONS
+        const from = MY_EMAIL;
+        const subject = "🌻 This Is Sent By Reducer 🌻";
+        const html = `
+          <p>Hey ${user.email},</p>
+          <p>Click <a href="https://tiny-url-frontend.vercel.app/resetPassword/${user._id}">here</a> to reset your password.</p>
+          <p>Thank you</p>
+        `;
+
+        return new Promise((resolve, reject) => {
+          transport.sendMail({ from, to: tosend, subject, html }, (err, info) => {
+            if (err) reject(err);
+            else resolve(info);
+          });
+        });
+      } catch (error) {
+        throw new Error(`Error while sending email: ${error.message}`);
+      }
     };
 
     // Call the function and handle the response
@@ -239,7 +249,7 @@ export async function handleForgotPassword(req, res) {
     res.status(200).send("Password reset email sent successfully.");
 
   } catch (error) {
-    console.error(error); // Log the error for debugging
+    console.error("Error in sending forgot password email:", error); // Log the error for debugging
     res.status(500).send("Error in sending forgot password email");
   }
 }
