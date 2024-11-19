@@ -177,9 +177,11 @@ export async function handleForgotPassword(req, res) {
   if (!email) {
     return res.status(400).send("Email is required");
   }
+  console.log("Email :",email);
 
   try {
     const user = await User.findOne({ email });
+    console.log("User :",user);
 
     if (!user) {
       return res.status(404).send("Invalid Email Address.");
