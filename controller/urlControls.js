@@ -22,7 +22,8 @@ export async function handleCreateNewShortID(req, res) {
 
   if (!url) return res.status(400).send("URL required");
 
-  try {
+ if(req.valideUser){
+    try {
     const shortId = shortid.generate();
     const qrCodeURL = await qrcode.toDataURL(url);
 
@@ -40,6 +41,7 @@ export async function handleCreateNewShortID(req, res) {
     console.error("Error creating URL:", error);
     return res.status(500).send("Error creating URL: " + error.message);
   }
+ }
 }
 
 export async function handleFindByShortId(req, res) {
