@@ -181,18 +181,22 @@ export async function handleForgotPassword(req, res) {
   console.log("Received forgot password request for email:", email);
 
   try {
+    // Find the user in the database
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log("No user found with this email:", email);
       return res.status(404).send("Invalid Email Address.");
     }
 
+    console.log("User found:", user);
+
+    // OAuth2 Credentials
     const CLIENT_ID = process.env.CLIENT_ID_FOR_MAIL;
     const CLIENT_SECRET = process.env.CLIENT_SECRET_FOR_MAIL;
     const REFRESH_TOKEN = process.env.REFRESH_TOKEN_FOR_MAIL;
-    const REDIRECT_URI = "https://developers.google.com/oauthplayground"; // Do not edit
+    const REDIRECT_URI = "https://developers.google.com/oauthplayground";
     const MY_EMAIL = "muhammadhammadq882@gmail.com";
-    const tosend = user.email;
 
     const oAuth2Client = new google.auth.OAuth2(
       CLIENT_ID,
@@ -200,15 +204,17 @@ export async function handleForgotPassword(req, res) {
       REDIRECT_URI
     );
 
-    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN_FOR_MAIL });
+    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 
     const sendTestEmail = async () => {
       try {
         const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
 
-        if (!ACCESS_TOKEN || !ACCESS_TOKEN.token) {
-          throw new Error("Failed to retrieve access token.");
+        if (!ACCESS_TOKEN?.token) {
+          throw new Error("Failed to retrieve access token. Check your OAuth2 configuration.");
         }
+
+        console.log("Access token retrieved successfully.");
 
         const transport = nodemailer.createTransport({
           service: "gmail",
@@ -237,13 +243,17 @@ export async function handleForgotPassword(req, res) {
           `,
         };
 
+        console.log("Sending email...");
         return await transport.sendMail(mailOptions);
       } catch (error) {
-        throw new Error(`Failed to send email: ${error.message}`);
+        console.error("Error while sending email:", error.message);
+        throw error;
       }
     };
 
+    // Call sendTestEmail
     await sendTestEmail();
+    console.log("Password reset email sent successfully to:", user.email);
     res.status(200).send("Password reset email sent successfully.");
   } catch (error) {
     console.error("Error during forgot password process:", error.message);
