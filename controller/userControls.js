@@ -177,11 +177,11 @@ export async function handleForgotPassword(req, res) {
   if (!email) {
     return res.status(400).send("Email is required");
   }
-  console.log("Email :",email);
+
+  console.log("Received forgot password request for email:", email);
 
   try {
     const user = await User.findOne({ email });
-    console.log("User :",user);
 
     if (!user) {
       return res.status(404).send("Invalid Email Address.");
@@ -200,15 +200,14 @@ export async function handleForgotPassword(req, res) {
       REDIRECT_URI
     );
 
-    // Set the credentials with the refresh token
-    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+    oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN_FOR_MAIL });
 
     const sendTestEmail = async () => {
       try {
         const ACCESS_TOKEN = await oAuth2Client.getAccessToken();
-        
-        if (!ACCESS_TOKEN.token) {
-          throw new Error("Failed to retrieve access token");
+
+        if (!ACCESS_TOKEN || !ACCESS_TOKEN.token) {
+          throw new Error("Failed to retrieve access token.");
         }
 
         const transport = nodemailer.createTransport({
@@ -221,38 +220,34 @@ export async function handleForgotPassword(req, res) {
             refreshToken: REFRESH_TOKEN,
             accessToken: ACCESS_TOKEN.token,
           },
-          tls: {
-            rejectUnauthorized: true,
-          },
         });
 
-        // EMAIL OPTIONS
-        const from = MY_EMAIL;
-        const subject = "🌻 This Is Sent By Reducer 🌻";
-        const html = `
-          <p>Hey ${user.username},</p>
-          <p>Click <a href="https://tiny-url-frontend.vercel.app/resetPassword/${user._id}">here</a> to reset your password.</p>
-          <p>Thank you</p>
-        `;
+        const resetLink = `https://tiny-url-frontend.vercel.app/resetPassword/${user._id}`;
+        const mailOptions = {
+          from: MY_EMAIL,
+          to: user.email,
+          subject: "Password Reset Request",
+          html: `
+            <p>Hi ${user.username},</p>
+            <p>You requested a password reset. Click the link below to reset your password:</p>
+            <a href="${resetLink}" target="_blank">Reset Password</a>
+            <p>If you didn't request this, please ignore this email.</p>
+            <p>Thanks,</p>
+            <p>Your Team</p>
+          `,
+        };
 
-        return new Promise((resolve, reject) => {
-          transport.sendMail({ from, to: tosend, subject, html }, (err, info) => {
-            if (err) reject(err);
-            else resolve(info);
-          });
-        });
+        return await transport.sendMail(mailOptions);
       } catch (error) {
-        throw new Error(`Error while sending email: ${error.message}`);
+        throw new Error(`Failed to send email: ${error.message}`);
       }
     };
 
-    // Call the function and handle the response
     await sendTestEmail();
     res.status(200).send("Password reset email sent successfully.");
-
   } catch (error) {
-    console.error("Error in sending forgot password email:", error); // Log the error for debugging
-    res.status(500).send("Error in sending forgot password email");
+    console.error("Error during forgot password process:", error.message);
+    res.status(500).send("Error in sending forgot password email.");
   }
 }
 
